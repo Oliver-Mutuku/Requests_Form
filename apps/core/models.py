@@ -15,7 +15,7 @@ class Request(models.Model):
     is_approved = models.BooleanField(default=False)
 
     class Meta:
-        db_table = "Request"
+        db_table = "request"
         verbose_name = "request"
         verbose_name_plural = "requests"
     

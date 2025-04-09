@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Request Form</title>
+    </head>
+    <body class="min-h-screen py-8">
+        <header class="w-full h-20 bg-[#01763b] absolute top-0 px-10">
+            <div class="h-full w-20">
+                <img src="http://localhost:5173/images/konza.jpg" alt="konza" class="w-full h-full object-contain">
+            </div>
+        </header>
+        <div class="w-1/2 mx-auto mt-20">
+            <div class="shadow-lg rounded-lg p-8">
+                <h1 class="text-3xl font-bold mb-6 text-center">Request Form</h1>
+
+                <form id="requestForm" class="space-y-6">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                            <label for="firstName" class="block text-md font-medium mb-3">First Name</label>
+                            <input type="text" id="firstName" name="firstName" required class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#01763b]" />
+                        </div>
+
+                        <div>
+                            <label for="middleName" class="block text-md font-medium mb-3">Middle Name</label>
+                            <input type="text" id="middleName" name="middleName" class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#01763b]" />
+                        </div>
+
+                        <div>
+                            <label for="lastName" class="block text-md font-medium mb-3">Last Name</label>
+                            <input type="text" id="lastName" name="lastName" required class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#01763b]" />
+                        </div>
+
+                        <div>
+                            <label for="email" class="block text-md font-medium mb-3">Email</label>
+                            <input type="email" id="email" name="email" required class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#01763b]" />
+                        </div>
+
+                        <div>
+                            <label for="phone" class="block text-md font-medium mb-3">Phone Number</label>
+                            <input type="number" id="phone" name="phone" required class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#01763b]" />
+                        </div>
+
+                        <div>
+                            <label for="application" class="block text-md font-medium mb-3">Application</label>
+                            <input type="text" id="application" name="application" required class="w-full px-4 py-3 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#01763b]" />
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="description" class="block text-md font-medium mb-3">Request Description</label>
+                        <textarea id="description" name="description" rows="4" required class="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-[#01763b]"></textarea>
+                    </div>
+
+                    <div>
+                        <label class="block text-md font-medium mb-1">Signature</label>
+                        <div class="border rounded-md bg-white p-1">
+                            <canvas id="signaturePad" class="w-full h-48 cursor-crosshair rounded-md"></canvas>
+                        </div>
+                    </div>
+
+                    <div class="flex justify-between pt-4">
+                        <button type="button" id="clearSignature" class="px-4 py-2 shadow-md text-md text-red-800 bg-red-200 rounded-md">Clear Signature</button>
+                        <button type="submit" class="px-10 py-3 bg-[#01763b] text-white rounded-md focus:outline-none focus:ring-2 focus:ring-[#01763b]">Submit Request</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/4.1.5/signature_pad.umd.min.js"></script>
+        <script src="https://cdn.tailwindcss.com"></script>
+        <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                const canvas = document.getElementById("signaturePad");
+                const signaturePad = new SignaturePad(canvas, {
+                    backgroundColor: "rgb(255, 255, 255)",
+                    penColor: "rgb(34, 197, 94)",
+                });
+
+                function resizeCanvas() {
+                    const ratio = Math.max(window.devicePixelRatio || 1, 1);
+                    canvas.width = canvas.offsetWidth * ratio;
+                    canvas.height = canvas.offsetHeight * ratio;
+                    canvas.getContext("2d").scale(ratio, ratio);
+                    signaturePad.clear();
+                }
+
+                window.addEventListener("resize", resizeCanvas);
+                resizeCanvas();
+
+                document.getElementById("clearSignature").addEventListener("click", function () {
+                    signaturePad.clear();
+                });
+
+                document.getElementById("requestForm").addEventListener("submit", function (e) {
+                    e.preventDefault();
+
+                    if (signaturePad.isEmpty()) {
+                        alert("Please provide a signature");
+                        return;
+                    }
+
+                    const firstName = document.getElementById("firstName").value;
+                    const middleName = document.getElementById("middleName").value;
+                    const lastName = document.getElementById("lastName").value;
+                    const email = document.getElementById("email").value;
+                    const phone = document.getElementById("phone").value;
+                    const application = document.getElementById("application").value;
+                    const description = document.getElementById("description").value;
+                    const signatureData = signaturePad.toDataURL();
+
+                    axios.post('/requests/', {
+                        first_name: firstName,
+                        middle_name: middleName,
+                        last_name: lastName,
+                        email: email,
+                        phone_number: phone,
+                        application: application,
+                        description: description,
+                        signature: signatureData
+                    })
+                    .then(function (response) {
+                        console.log(response.data);
+                        alert("Form submitted successfully!");
+                        document.getElementById("requestForm").reset();
+                        signaturePad.clear();
+                    })
+                    .catch(function (error) {
+                        console.error(error);
+                        alert("Failed to submit the form. Please check the console for details.");
+                    });
+                });
+            });
+        </script>
+    </body>
+</html>
