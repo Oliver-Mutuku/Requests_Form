@@ -1,4 +1,5 @@
 from django.db import models
+from django.utils import timezone
 
 
 class Request(models.Model):
@@ -9,6 +10,7 @@ class Request(models.Model):
     phone_number = models.CharField(max_length=20, null=True, blank=True)
     application = models.CharField(max_length=100)
     description = models.TextField()
+    date_of_request = models.DateTimeField(default=timezone.now)
     signature = models.TextField()
     is_approved = models.BooleanField(default=False)
 
