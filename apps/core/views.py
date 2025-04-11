@@ -12,5 +12,5 @@ class RequestViewset(viewsets.ModelViewSet):
     @action(detail=False, methods=['get'])
     def form(self, request):
         context = {}
-        return render(request, 'index.html', context)
+        return render(request, 'core/new_request.html', context)
 
