@@ -1,7 +1,6 @@
 from django.db import models
 from django.utils import timezone
 
-
 class Request(models.Model):
     first_name = models.CharField(max_length=200)
     middle_name = models.CharField(max_length=200, null=True, blank=True)
@@ -11,8 +10,6 @@ class Request(models.Model):
     application = models.CharField(max_length=100)
     description = models.TextField()
     date_of_request = models.DateTimeField(default=timezone.now)
-    signature = models.TextField()
-    is_approved = models.BooleanField(default=False)
 
     class Meta:
         db_table = "request"
@@ -21,3 +18,19 @@ class Request(models.Model):
     
     def __str__(self):
         return self.application
+
+class Approval(models.Model):
+    request = models.ForeignKey(Request, on_delete=models.CASCADE)
+    signature = models.TextField()
+    description = models.TextField(blank=True, null=True)
+    is_approved = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        db_table = "approval"
+        verbose_name = "approval"
+        verbose_name_plural = "approvals"
+
+    def __str__(self):
+        return  self.request
