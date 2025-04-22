@@ -24,3 +24,7 @@ class RequestViewset(viewsets.ModelViewSet):
         context = {}
         return render(request, 'core/new_request.html', context)
 
+    @action(detail=False, methods=['GET'], url_path='list')
+    def list_requests_template(self, request):
+        requests = self.get_queryset().order_by('-id')
+        return render(request, 'core/list_requests.html', {'requests': requests})

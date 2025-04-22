@@ -2,4 +2,5 @@ venv
 .env
 db.sqlite3
 req_venv
+venv_requests
 
