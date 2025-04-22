@@ -1,0 +1,57 @@
+{% extends 'core/base.html' %}
+
+{% block content %}
+    <div class="w-11/12 mx-auto mt-24">
+        <div class="shadow-lg rounded-lg p-8 bg-white">
+            <h1 class="text-3xl font-bold mb-6 text-center">All Requests</h1>
+            
+            {% if requests %}
+                <div class="overflow-x-auto">
+                    <table class="w-full table-auto border-collapse">
+                        <thead>
+                            <tr class="bg-[#01763b] text-white">
+                                <th class="px-4 py-3 text-left">Name</th>
+                                <th class="px-4 py-3 text-left">Email</th>
+                                <th class="px-4 py-3 text-left">Phone</th>
+                                <th class="px-4 py-3 text-left">Application</th>
+                                <th class="px-4 py-3 text-left">Description</th>
+                                <th class="px-4 py-3 text-left">Signature</th>
+                                <th class="px-4 py-3 text-left">Submitted</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in requests %}
+                                <tr class="border-b hover:bg-gray-50 cursor-pointer" onclick="handleClick({{ request.id }})">
+                                    <td class="px-4 py-3">
+                                        {{ request.first_name }} 
+                                        {% if request.middle_name %}
+                                            {{ request.middle_name }}
+                                        {% endif %}
+                                        {{ request.last_name }}
+                                    </td>
+                                    <td class="px-4 py-3">{{ request.email }}</td>
+                                    <td class="px-4 py-3">{{ request.phone_number|default:"N/A" }}</td>
+                                    <td class="px-4 py-3">{{ request.application }}</td>
+                                    <td class="px-4 py-3">{{ request.description|truncatewords:20 }}</td>
+                                    <td class="px-4 py-3">
+                                        <img src="{{ request.signature }}" alt="Signature" class="h-12 w-auto">
+                                    </td>
+                                    <td class="px-4 py-3">{{ request.date_of_request|date:"M d, Y H:i" }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <p class="text-center text-gray-500">No requests found.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        const handleClick = (id) =>{
+            alert(id)
+        }
+    </script>
+{% endblock content %}
