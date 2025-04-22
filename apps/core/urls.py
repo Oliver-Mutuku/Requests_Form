@@ -10,3 +10,9 @@ router.register(r"approval", ApprovalViewset)
 urlpatterns = [
     path('', include(router.urls))
 ]
+
+# The URLs will be automatically generated as:
+# /requests/ - list view
+# /requests/<id>/ - detail view
+# /requests/<id>/admin_view/ - admin view for a specific request
+# /requests/<id>/process/ - endpoint to process a request

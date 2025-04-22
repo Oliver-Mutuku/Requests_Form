@@ -3,15 +3,74 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Request Form</title>
+        <title>{% block title %}Request System{% endblock %}</title>
+        <link href="https://cdn.tailwindcss.com" rel="stylesheet">
     </head>
-    <body class="min-h-screen py-8">
-        <header class="w-full h-20 bg-[#01763b] absolute top-0 px-10">
-            <div class="h-full w-20">
-                <img src="http://localhost:5173/images/konza.jpg" alt="konza" class="w-full h-full object-contain">
+    <body class="min-h-screen pt-16 pb-8 bg-gray-50">
+        <header class="w-full h-16 bg-[#01763b] fixed top-0 left-0 right-0 shadow-md z-10">
+            <div class="container mx-auto px-4 h-full flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="h-12 w-12">
+                        <img src="http://localhost:5173/images/konza.jpg" alt="konza" class="w-full h-full object-contain rounded">
+                    </div>
+                    <span class="text-white font-semibold text-lg">Request Management</span>
+                </div>
+
+                <nav class="hidden md:flex items-center space-x-6">
+                    <a href="{% url 'request-list' %}" class="text-white hover:text-green-200 font-medium">All Requests</a>
+                    <a href="{% url 'request-form' %}" class="text-white hover:text-green-200 font-medium">New Request</a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'request-list' %}?status=pending" class="text-white hover:text-green-200 font-medium">Pending Approvals</a>
+                    {% endif %}
+                </nav>
+
+                <div class="flex items-center space-x-4">
+                    {% if user.is_authenticated %}
+                    <span class="text-white text-sm">{{ user.get_full_name|default:user.username }}</span>
+                    <a href="{% url 'logout' %}" class="px-4 py-2 bg-white text-[#01763b] rounded-md text-sm font-medium hover:bg-green-100">Logout</a>
+                    {% else %}
+                    <a href="#" class="px-4 py-2 bg-white text-[#01763b] rounded-md text-sm font-medium hover:bg-green-100">Login</a>
+                    {% endif %}
+                </div>
+
+                <!-- Mobile menu button -->
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" class="text-white">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" />
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile navigation menu -->
+            <div id="mobile-menu" class="md:hidden hidden bg-[#025c2e] w-full">
+                <div class="px-4 py-2">
+                    <a href="{% url 'request-list' %}" class="block text-white py-2 hover:bg-[#01763b]">All Requests</a>
+                    <a href="{% url 'request-form' %}" class="block text-white py-2 hover:bg-[#01763b]">New Request</a>
+                    {% if user.is_staff %}
+                    <a href="{% url 'request-list' %}?status=pending" class="block text-white py-2 hover:bg-[#01763b]">Pending Approvals</a>
+                    {% endif %}
+                </div>
             </div>
         </header>
-        
-        {% block content%} {% endblock content%}
+
+        <main class="container mx-auto px-4">
+            {% block content %} {% endblock content %}
+        </main>
+
+        <script>
+            // Mobile menu toggle
+            document.addEventListener('DOMContentLoaded', function() {
+                const mobileMenuButton = document.getElementById('mobile-menu-button');
+                const mobileMenu = document.getElementById('mobile-menu');
+
+                if (mobileMenuButton && mobileMenu) {
+                    mobileMenuButton.addEventListener('click', function() {
+                        mobileMenu.classList.toggle('hidden');
+                    });
+                }
+            });
+        </script>
     </body>
 </html>
