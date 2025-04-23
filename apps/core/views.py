@@ -9,6 +9,10 @@ from .models import Request, Approval
 import json
 
 
+def form(request):
+    context = {}
+    return render(request, 'core/new_request.html', context)
+
 class ApprovalViewset(viewsets.ModelViewSet):
     queryset = Approval.objects.all()
     serializer_class = ApprovalSerializer
@@ -23,10 +27,6 @@ class RequestViewset(viewsets.ModelViewSet):
     queryset = Request.objects.all()
     serializer_class = RequestSerializer
 
-    @action(detail=False, methods=['get'])
-    def form(self, request):
-        context = {}
-        return render(request, 'core/new_request.html', context)
 
     def list(self, request, *args, **kwargs):
         status_filter = request.GET.get('status', '')
