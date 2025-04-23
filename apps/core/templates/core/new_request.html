@@ -53,15 +53,12 @@
 
                     <div>
                         <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone Number *</label>
-                        <div class="relative">
-                            <div class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <span class="text-gray-500">+1</span>
-                            </div>
-                            <input type="tel" id="phone" name="phone" required
-                                   class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent"
-                                   placeholder="(555) 123-4567" />
+                        <div id="phone-input-container" class="w-full">
+                            <!-- Phone number input will be rendered here by intlTelInput -->
+                            <input type="tel" id="phone" name="phone" placeholder="712345678" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent" required />
                         </div>
                         <p class="mt-1 text-sm text-red-600 hidden" id="phoneError"></p>
+                        <input type="hidden" id="fullPhoneNumber" name="fullPhoneNumber" />
                     </div>
                 </div>
 
@@ -192,6 +189,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/4.1.5/signature_pad.umd.min.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/intlTelInput.min.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/css/intlTelInput.css">
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         // Initialize variables
@@ -213,7 +212,8 @@
         const firstName = document.getElementById("firstName");
         const lastName = document.getElementById("lastName");
         const email = document.getElementById("email");
-        const phone = document.getElementById("phone");
+        const phoneInput = document.getElementById("phone");
+        const fullPhoneNumber = document.getElementById("fullPhoneNumber");
         const application = document.getElementById("application");
         const otherApplicationContainer = document.getElementById("otherApplicationContainer");
         const otherApplication = document.getElementById("otherApplication");
@@ -235,6 +235,34 @@
         // Success modal
         const successModal = document.getElementById("successModal");
         const closeModal = document.getElementById("closeModal");
+
+        // Initialize international telephone input
+        const iti = window.intlTelInput(phoneInput, {
+            utilsScript: "https://cdnjs.cloudflare.com/ajax/libs/intl-tel-input/18.2.1/js/utils.js",
+            separateDialCode: true,
+            initialCountry: "auto",
+            geoIpLookup: function(callback) {
+                fetch("https://ipapi.co/json")
+                    .then(function(res) { return res.json(); })
+                    .then(function(data) { callback(data.country_code); })
+                    .catch(function() { callback("us"); });
+            },
+            preferredCountries: ["us", "gb", "ca", "au"],
+            nationalMode: true,
+        });
+
+        // Store the formatted phone number when submitting
+        phoneInput.addEventListener("blur", function() {
+            if (iti.isValidNumber()) {
+                phoneError.classList.add("hidden");
+                fullPhoneNumber.value = iti.getNumber();
+            } else {
+                if (phoneInput.value.trim()) {
+                    phoneError.textContent = "Please enter a valid phone number";
+                    phoneError.classList.remove("hidden");
+                }
+            }
+        });
 
         // Initialize signature pad
         const canvas = document.getElementById("signaturePad");
@@ -320,11 +348,16 @@
             }
 
             // Validate phone number
-            if (!phone.value.trim()) {
+            if (!phoneInput.value.trim()) {
                 phoneError.textContent = "Phone number is required";
                 phoneError.classList.remove("hidden");
                 isValid = false;
+            } else if (!iti.isValidNumber()) {
+                phoneError.textContent = "Please enter a valid phone number";
+                phoneError.classList.remove("hidden");
+                isValid = false;
             } else {
+                fullPhoneNumber.value = iti.getNumber();
                 phoneError.classList.add("hidden");
             }
 
@@ -436,20 +469,6 @@
             }
         });
 
-        // Format phone number as the user types
-        phone.addEventListener("input", function(e) {
-            const input = e.target;
-            const value = input.value.replace(/\D/g, '').substring(0, 10);
-
-            if (value.length <= 3) {
-                input.value = value;
-            } else if (value.length <= 6) {
-                input.value = `(${value.substring(0, 3)}) ${value.substring(3)}`;
-            } else {
-                input.value = `(${value.substring(0, 3)}) ${value.substring(3, 6)}-${value.substring(6)}`;
-            }
-        });
-
         // Form submission
         document.getElementById("requestForm").addEventListener("submit", function (e) {
             e.preventDefault();
@@ -467,7 +486,7 @@
                 middle_name: document.getElementById("middleName").value.trim(),
                 last_name: lastName.value.trim(),
                 email: email.value.trim(),
-                phone_number: phone.value.replace(/\D/g, ''),
+                phone_number: fullPhoneNumber.value,
                 application: application.value === "Other" ? otherApplication.value.trim() : application.value,
                 description: description.value.trim(),
                 is_urgent: document.getElementById("urgent").checked,
@@ -508,6 +527,7 @@
             successModal.classList.add("hidden");
             // Reset the form
             document.getElementById("requestForm").reset();
+            iti.setCountry("us"); // Reset phone input to default country
             if (signaturePad) {
                 signaturePad.clear();
             }
