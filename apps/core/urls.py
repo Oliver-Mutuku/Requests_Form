@@ -1,5 +1,5 @@
 from django.urls import path, include
-from .views import RequestViewset, ApprovalViewset
+from .views import RequestViewset, ApprovalViewset, form
 from rest_framework.routers import DefaultRouter
 
 
@@ -8,6 +8,7 @@ router.register(r"requests", RequestViewset)
 router.register(r"approval", ApprovalViewset)
 
 urlpatterns = [
+    path("", form, name="request-form"),
     path('', include(router.urls))
 ]
 
