@@ -17,7 +17,7 @@ def form(request):
 class ApprovalViewset(viewsets.ModelViewSet):
     queryset = Approval.objects.all()
     serializer_class = ApprovalSerializer
-    permission_classes = [IsAdminUser]
+    permission_classes = [IsAuthenticated, IsAdminUser]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
