@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404
 from rest_framework import viewsets, status
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 from django.db.models import Q
 from django.core.paginator import Paginator
@@ -8,6 +8,15 @@ from .serializers import RequestSerializer, ApprovalSerializer, ReadApprovalSeri
 from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .models import Request, Approval
 import json
+
+
+@api_view(['POST', 'GET'])
+def login(request):
+    if request.method == 'GET':
+        ...
+    else:
+        ...
+
 
 
 def form(request):
