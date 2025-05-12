@@ -5,6 +5,7 @@ from rest_framework.response import Response
 from django.db.models import Q
 from django.core.paginator import Paginator
 from .serializers import RequestSerializer, ApprovalSerializer, ReadApprovalSerializer
+from rest_framework.permissions import IsAdminUser, IsAuthenticated
 from .models import Request, Approval
 import json
 
@@ -16,6 +17,7 @@ def form(request):
 class ApprovalViewset(viewsets.ModelViewSet):
     queryset = Approval.objects.all()
     serializer_class = ApprovalSerializer
+    permission_classes = [IsAdminUser]
 
     def get_serializer_class(self):
         if self.request.method == "GET":
